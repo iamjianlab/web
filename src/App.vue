@@ -82,16 +82,26 @@ const activeIndex = computed(() => router.currentRoute.value.path)
 <style>
 /* Reset & Base */
 :root {
-  --primary-color: #646cff;
+  --primary-color: #bebec1;
   --bg-color: #ffffff;
-  --text-color: #213547;
+  --text-color: #000000;
   --header-height: 64px;
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(255, 255, 255, 0.5);
+  --button-black: #000000;
+  --button-black-hover: #1a1a1a;
+  --button-black-active: #111111;
+  --el-color-primary: var(--button-black);
+  --el-color-primary-dark-2: var(--button-black);
+  --el-color-primary-light-3: #1a1a1a;
+  --el-color-primary-light-5: #2a2a2a;
+  --el-color-primary-light-7: #3a3a3a;
+  --el-color-primary-light-8: #4a4a4a;
+  --el-color-primary-light-9: #f5f5f5;
 }
 
 html.dark {
-  --primary-color: #a8b1ff; /* Lighter for dark mode */
+  --primary-color: #146079; /* Lighter for dark mode */
   --bg-color: #1a1a1a; /* Dark background */
   --text-color: rgba(255, 255, 255, 0.87);
   --glass-bg: rgba(26, 26, 26, 0.8);
@@ -152,7 +162,7 @@ body {
 }
 
 .logo-text {
-  background: linear-gradient(135deg, var(--primary-color), #bc13fe);
+  background: black;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -173,7 +183,7 @@ body {
 }
 
 .desktop-nav a.active, .desktop-nav a:hover {
-  color: var(--primary-color);
+  color: rgb(129, 129, 129);
 }
 
 .desktop-nav a::after {
@@ -197,15 +207,55 @@ body {
   align-items: center;
 }
 
+.el-button:not(.is-link) {
+  --el-button-bg-color: var(--button-black);
+  --el-button-border-color: var(--button-black);
+  --el-button-text-color: #ffffff;
+  --el-button-hover-bg-color: var(--button-black-hover);
+  --el-button-hover-border-color: var(--button-black-hover);
+  --el-button-hover-text-color: #ffffff;
+  --el-button-active-bg-color: var(--button-black-active);
+  --el-button-active-border-color: var(--button-black-active);
+  --el-button-active-text-color: #ffffff;
+}
+
+.el-button.is-link {
+  --el-button-bg-color: transparent;
+  --el-button-border-color: transparent;
+  --el-button-hover-bg-color: transparent;
+  --el-button-hover-border-color: transparent;
+  --el-button-active-bg-color: transparent;
+  --el-button-active-border-color: transparent;
+  --el-button-text-color: var(--button-black);
+  --el-button-hover-text-color: var(--button-black-hover);
+  --el-button-active-text-color: var(--button-black-active);
+}
+
+.el-radio-button__inner {
+  color: var(--button-black);
+}
+
+.el-radio-button__inner:hover {
+  color: var(--button-black);
+}
+
+.el-radio-button__original-radio:checked + .el-radio-button__inner {
+  background-color: var(--button-black);
+  border-color: var(--button-black);
+  box-shadow: -1px 0 0 0 var(--button-black);
+  color: #ffffff;
+}
+
 .theme-btn, .lang-btn {
-  background: transparent;
-  border: 1px solid var(--text-color);
-  color: var(--text-color);
+  background: var(--button-black);
+  border: 1px solid var(--button-black);
+  color: #ffffff;
 }
 
 .theme-btn:hover, .lang-btn:hover {
-  background: var(--text-color);
-  color: var(--bg-color);
+  background: var(--button-black-hover);
+  border-color: var(--button-black-hover);
+  color: #ffffff;
 }
 
 /* Main Content */

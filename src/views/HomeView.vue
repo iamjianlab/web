@@ -24,17 +24,6 @@ const projects = [
        <div class="content">
           <h1 class="gradient-text">{{ t('home.intro') }}</h1>
           <p class="subtitle">{{ t('home.desc') }}</p>
-          <!-- <div class="actions">
-            <el-button type="primary" size="large" round @click="router.push('/projects')">
-              {{ t('home.viewProjects') }}
-              <el-icon class="el-icon--right"><ArrowRight /></el-icon>
-            </el-button>
-            <el-button size="large" round @click="router.push('/contact')">{{ t('home.contactMe') }}</el-button> -->
-          <!-- </div> -->
-       </div>
-       <div class="visuals">
-          <div class="floating-shape shape-1"></div>
-          <div class="floating-shape shape-2"></div>
        </div>
     </section>
 
@@ -101,7 +90,7 @@ const projects = [
 .gradient-text {
   font-size: 4rem;
   font-weight: 800;
-  background: linear-gradient(45deg, #409EFF, #b882ff, #ff6b6b);
+  background: black;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -132,31 +121,6 @@ const projects = [
   z-index: 0;
 }
 
-.floating-shape {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: float 10s infinite ease-in-out;
-}
-
-.shape-1 {
-  width: 400px;
-  height: 400px;
-  background: #409EFF;
-  top: 20%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.shape-2 {
-  width: 500px;
-  height: 500px;
-  background: #b882ff;
-  bottom: 10%;
-  right: 10%;
-  animation-delay: -5s;
-}
 
 @keyframes float {
   0%, 100% { transform: translateY(0) scale(1); }

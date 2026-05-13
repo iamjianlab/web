@@ -11,6 +11,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button:not(.el-button) {
+  background: #000;
+  border: 1px solid #000;
+  color: #fff;
+}
+
+button:not(.el-button):hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
 a {
   text-decoration: none;
   color: inherit;

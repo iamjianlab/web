@@ -6,8 +6,8 @@ export default {
         contact: '联系',
     },
     home: {
-        intro: '你好,我是JIAN,一名独立开发者',
-        desc: '用心做好每个产品',
+        intro: '我是JIAN，一名独立开发者',
+        desc: '',
         viewProjects: '查看项目',
         contactMe: '联系我',
         featuredProjects: '精选项目',

@@ -87,7 +87,7 @@ const onSubmit = async () => {
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 20px;
-  background: linear-gradient(to right, #646cff, #bc13fe);
+  background: black;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -135,6 +135,8 @@ const onSubmit = async () => {
   border-radius: 16px;
   box-shadow: var(--el-box-shadow-light);
   border: 1px solid var(--el-border-color-lighter);
+
+  
 }
 
 .submit-btn {
@@ -143,6 +145,8 @@ const onSubmit = async () => {
   height: 45px;
   font-size: 1.1rem;
 }
+
+
 
 @media (max-width: 768px) {
   .contact-grid {
