@@ -9,10 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-concurrency:
-  group: production-deploy
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Build
@@ -44,10 +40,13 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    name: Deploy to VPS
+    name: Deploy to VPS Docker
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: production-deploy-${{ github.ref }}
+      cancel-in-progress: true
     environment:
       name: production
     permissions:
@@ -59,7 +58,14 @@ jobs:
       VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
       VPS_TARGET_DIR: ${{ secrets.VPS_TARGET_DIR }}
       VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+      VPS_APP_PORT: ${{ secrets.VPS_APP_PORT }}
+      VPS_BIND_ADDRESS: ${{ secrets.VPS_BIND_ADDRESS }}
+      VPS_CONTAINER_NAME: ${{ secrets.VPS_CONTAINER_NAME }}
+      VPS_DOCKER_PROJECT_NAME: ${{ secrets.VPS_DOCKER_PROJECT_NAME }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -83,6 +89,14 @@ jobs:
               ;;
           esac
 
+          APP_PORT="${VPS_APP_PORT:-8080}"
+          case "$APP_PORT" in
+            ''|*[!0-9]*)
+              echo "::error::VPS_APP_PORT must be a numeric port, got: $APP_PORT"
+              exit 1
+              ;;
+          esac
+
       - name: Configure SSH
         run: |
           set -eu
@@ -101,7 +115,19 @@ jobs:
           fi
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Ensure target directory exists
+      - name: Prepare deployment bundle
+        run: |
+          set -eu
+
+          rm -rf release
+          mkdir -p release/dist
+
+          cp -R dist/. release/dist/
+          cp deploy/Dockerfile release/Dockerfile
+          cp deploy/compose.yaml release/compose.yaml
+          cp deploy/nginx.conf release/nginx.conf
+
+      - name: Sync deployment bundle to VPS
         run: |
           set -eu
           PORT="${VPS_PORT:-22}"
@@ -110,11 +136,35 @@ jobs:
             "$VPS_USER@$VPS_HOST" \
             "mkdir -p '$VPS_TARGET_DIR'"
 
-      - name: Sync dist to VPS
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_ed25519 -p $PORT" \
+            release/ "$VPS_USER@$VPS_HOST:$VPS_TARGET_DIR/"
+
+      - name: Deploy Docker stack on VPS
         run: |
           set -eu
           PORT="${VPS_PORT:-22}"
+          APP_PORT="${VPS_APP_PORT:-8080}"
+          BIND_ADDRESS="${VPS_BIND_ADDRESS:-0.0.0.0}"
+          PROJECT_NAME="${VPS_DOCKER_PROJECT_NAME:-personweb}"
+          CONTAINER_NAME="${VPS_CONTAINER_NAME:-personweb}"
 
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/id_ed25519 -p $PORT" \
-            dist/ "$VPS_USER@$VPS_HOST:$VPS_TARGET_DIR/"
+          ssh -i ~/.ssh/id_ed25519 -p "$PORT" \
+            "$VPS_USER@$VPS_HOST" \
+            "TARGET_DIR='$VPS_TARGET_DIR' APP_PORT='$APP_PORT' BIND_ADDRESS='$BIND_ADDRESS' PROJECT_NAME='$PROJECT_NAME' CONTAINER_NAME='$CONTAINER_NAME' IMAGE_NAME='${PROJECT_NAME}-web' bash -s" <<'EOF'
+          set -eu
+          cd "$TARGET_DIR"
+
+          if docker compose version >/dev/null 2>&1; then
+            COMPOSE_CMD='docker compose'
+          elif command -v docker-compose >/dev/null 2>&1; then
+            COMPOSE_CMD='docker-compose'
+          else
+            echo 'Docker Compose is not installed on the VPS.'
+            exit 1
+          fi
+
+          export APP_PORT BIND_ADDRESS CONTAINER_NAME IMAGE_NAME
+          $COMPOSE_CMD -f compose.yaml -p "$PROJECT_NAME" up -d --build --remove-orphans
+          docker image prune -f >/dev/null 2>&1 || true
+          EOF
